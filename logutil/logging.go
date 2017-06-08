@@ -34,5 +34,5 @@ func SetupLogging() {
 		FullTimestamp: false,
 	})
 
-	logrus.Info("Did setup default logging")
+	logrus.Info("Setup default logging")
 }
