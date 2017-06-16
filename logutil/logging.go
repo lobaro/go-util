@@ -36,3 +36,14 @@ func SetupLogging() {
 
 	logrus.Info("Setup default logging")
 }
+
+func NewDefaultLogger() *logrus.Logger {
+	l := logrus.New()
+	l.Out = Output
+	l.Formatter = &logrus.TextFormatter{
+		ForceColors:   true,
+		FullTimestamp: false,
+	}
+
+	return l
+}
