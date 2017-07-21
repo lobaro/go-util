@@ -42,6 +42,21 @@ func Setup(cmd *cobra.Command, requireFile bool) *viper.Viper {
 		panic(err)
 	}
 	cfg.AddConfigPath(dir)
+
+	dir, err = filepath.Abs(filepath.Join(filepath.Dir(os.Args[0]), "/config"))
+	if err != nil {
+		panic(err)
+	}
+	cfg.AddConfigPath(dir)
+
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(
+		"-", "_",
+		".", "__",
+	))
+
+	// Read in config
+
 	cfg.BindPFlags(cmd.Flags())
 
 	err = cfg.ReadInConfig()
