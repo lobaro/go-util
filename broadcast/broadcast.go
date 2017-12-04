@@ -1,10 +1,12 @@
 package broadcast
 
 import (
-	"sync"
-	"fmt"
 	"context"
+	"fmt"
+	"sync"
 )
+
+type HandlerFunc func(msg interface{})
 
 type Broadcaster struct {
 	workers    threadSafeSlice
@@ -21,31 +23,6 @@ func NewBoradcaster() *Broadcaster {
 	}
 }
 
-func (b *Broadcaster) Close() {
-	b.closed = true
-	b.workers.Iter(func(w *worker) { w.Close() })
-}
-
-func (b *Broadcaster) Send(val interface{}) error {
-	if b.closed {
-		return fmt.Errorf("faild to send: broadcaster closed")
-	}
-
-	b.workers.Iter(func(w *worker) {
-		if !w.closed {
-			w.source <- val
-		}
-	})
-
-	// TODO: remove closed workers!
-
-	return nil
-}
-
-
-type HandlerFunc func(msg interface{})
-
-// TODO: Return some handle to stop listening
 func (b *Broadcaster) StartListen(handler HandlerFunc) context.CancelFunc {
 	w := &worker{}
 	w.handler = handler
@@ -58,25 +35,48 @@ func (b *Broadcaster) StartListen(handler HandlerFunc) context.CancelFunc {
 	}
 }
 
+func (b *Broadcaster) Send(val interface{}) error {
+	if b.closed {
+		return fmt.Errorf("failed to send: broadcaster closed")
+	}
 
-func (s *threadSafeSlice) Iter(f func(*worker)) {
-	s.Lock()
-	defer s.Unlock()
+	closedWorkers := make([]*worker, 0)
 
-	for _, worker := range s.workers {
-		f(worker)
+	b.workers.Iter(func(w *worker) {
+		if !w.closed {
+			w.source <- val
+		} else {
+			closedWorkers = append(closedWorkers, w)
+		}
+	})
+
+	// Remove closed workers
+	for _, w := range closedWorkers {
+		b.workers.Remove(w)
+	}
+
+	return nil
+}
+
+func (b *Broadcaster) Close() {
+	if !b.closed {
+		b.closed = true
+		b.workers.Iter(func(w *worker) { w.Close() })
+		close(b.globalQuit) // Needed?
 	}
 }
 
 type worker struct {
-	source chan interface{}
+	source  chan interface{}
 	handler HandlerFunc
-	quit   chan struct{}
-	closed bool
+	quit    chan struct{} // Used from extern, needed?
+	closeCh chan struct{} // Used internal on close
+	closed  bool
 }
 
 func (w *worker) start() {
 	w.source = make(chan interface{}, 10) // some buffer size to avoid blocking
+	w.closeCh = make(chan struct{}, 0)
 	go func() {
 		for {
 			select {
@@ -84,15 +84,18 @@ func (w *worker) start() {
 				w.handler(msg)
 			case <-w.quit:
 				return
+			case <-w.closeCh:
+				return
 			}
 		}
 	}()
 }
 
-
-
 func (w *worker) Close() {
-	w.closed = true
+	if !w.closed {
+		w.closed = true
+		close(w.closeCh)
+	}
 }
 
 type threadSafeSlice struct {
@@ -107,14 +110,24 @@ func (s *threadSafeSlice) Append(w *worker) {
 	s.workers = append(s.workers, w)
 }
 
-func (s *threadSafeSlice) Remove(w *worker) {
+func (s *threadSafeSlice) Remove(w *worker) int {
 	s.Lock()
 	defer s.Unlock()
 
 	for i, worker := range s.workers {
 		if w == worker {
 			s.workers = append(s.workers[:i], s.workers[i+1:]...)
-			return
+			return i
 		}
+	}
+	return -1
+}
+
+func (s *threadSafeSlice) Iter(f func(*worker)) {
+	s.Lock()
+	defer s.Unlock()
+
+	for _, worker := range s.workers {
+		f(worker)
 	}
 }
