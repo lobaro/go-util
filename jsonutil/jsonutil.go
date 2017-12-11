@@ -3,7 +3,21 @@ package jsonutil
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
+	"fmt"
 )
+
+type ByteJsonArray []byte
+
+func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
+	var result string
+	if u == nil {
+		result = "null"
+	} else {
+		result = strings.Join(strings.Fields(fmt.Sprintf("%d", u)), ",")
+	}
+	return []byte(result), nil
+}
 
 // Takes a unmarshaled json and converts it into another struct
 func Convert(in interface{}, out interface{}) error {
