@@ -2,7 +2,6 @@ package jsonutil
 
 import (
 	"encoding/json"
-	"reflect"
 	"strings"
 	"fmt"
 	"github.com/Lobaro/go-util/reflectutil"
