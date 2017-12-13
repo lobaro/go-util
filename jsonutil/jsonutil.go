@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"fmt"
+	"github.com/Lobaro/go-util/reflectutil"
 )
 
 type ByteJsonArray []byte
@@ -21,10 +22,7 @@ func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
 
 // Takes a unmarshaled json and converts it into another struct
 func Convert(in interface{}, out interface{}) error {
-	t := reflect.TypeOf(out)
-	if t.Kind() != reflect.Ptr {
-		panic("out must be pointer but is " + t.Kind().String())
-	}
+	reflectutil.MustBePointer(out)
 
 	bytes, err := json.Marshal(in)
 	if err != nil {
