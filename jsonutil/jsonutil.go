@@ -33,3 +33,11 @@ func Convert(in interface{}, out interface{}) error {
 	}
 	return nil
 }
+
+func MustMarshal(in interface{}) []byte {
+	bytes, err := json.Marshal(in)
+	if err != nil {
+		panic(err)
+	}
+	return bytes
+}
