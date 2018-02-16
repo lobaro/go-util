@@ -7,12 +7,16 @@ import (
 	"time"
 )
 
+type ReadErrorHandler func (err error, errCnt int) bool
+
 type AsyncReader struct {
-	r          io.Reader
+	r          io.Reader     // underlying reader
 	readCh     chan []byte   // Hands over data from read worker
-	readBuffer *bytes.Buffer // Buffer data that is not requested by client
+	readBuffer *bytes.Buffer // Buffer data that is not read by client
 
 	readTimeout time.Duration
+	error       error
+	readErrorHandler ReadErrorHandler
 }
 
 func NewAsyncReader(r io.Reader) io.Reader {
@@ -28,6 +32,10 @@ func NewAsyncReader(r io.Reader) io.Reader {
 	return ar
 }
 
+func (ar *AsyncReader) SetReadErrorHandler(cb ReadErrorHandler) {
+	ar.readErrorHandler = cb
+}
+
 func (ar *AsyncReader) SetReadTimeout(to time.Duration) {
 	ar.readTimeout = to
 }
@@ -39,34 +47,39 @@ func (ar *AsyncReader) ReadTimeout() time.Duration {
 func (ar *AsyncReader) Read(b []byte) (n int, err error) {
 	// Data available, return it
 	if ar.readBuffer.Len() > 0 {
-		return ar.readFromBuffer(b)
+		return ar.readBuffer.Read(b)
 	}
 
 	// No data available, wait for new data with timeout
 	select {
 	case data := <-ar.readCh:
 		ar.readBuffer.Write(data) // There might come more data as needed, so buffer it
-		return ar.readFromBuffer(b)
+		return ar.readBuffer.Read(b)
 	case <-time.After(ar.ReadTimeout()):
 		return 0, io.EOF
 	}
 }
 
-func (ar *AsyncReader) readFromBuffer(b []byte) (n int, err error) {
-	n, err = ar.readBuffer.Read(b)
-	return n, err
+func (ar *AsyncReader) Error() error {
+	return ar.error
 }
 
 func (ar *AsyncReader) worker() {
+	errCnt := 0
 	readBuf := make([]byte, 1024)
 	for {
 		n, err := ar.r.Read(readBuf) // Read from underlying reader
 		if err != nil {
-			// TODO: make the state available outside
-			logrus.WithError(err).Error("AsyncReader worker died due to read error")
-			return
+			ar.error = err
+			if !ar.readErrorHandler(err, errCnt) {
+				return
+			}
+
+			errCnt++
+			continue
 		}
 
+		errCnt = 0
 		data := make([]byte, n)
 		copy(data, readBuf[:n])
 		ar.readCh <- data
