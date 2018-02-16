@@ -2,7 +2,6 @@ package asyncio
 
 import (
 	"bytes"
-	"github.com/Sirupsen/logrus"
 	"io"
 	"time"
 )
@@ -19,7 +18,7 @@ type AsyncReader struct {
 	readErrorHandler ReadErrorHandler
 }
 
-func NewAsyncReader(r io.Reader) io.Reader {
+func NewAsyncReader(r io.Reader) *AsyncReader {
 	ar := &AsyncReader{
 		r:           r,
 		readBuffer:  &bytes.Buffer{},
