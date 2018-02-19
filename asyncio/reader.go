@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"time"
+	"sync"
 )
 
 type ReadErrorHandler func (err error, errCnt int) bool
@@ -12,6 +13,7 @@ type AsyncReader struct {
 	r          io.Reader     // underlying reader
 	readCh     chan []byte   // Hands over data from read worker
 	readBuffer *bytes.Buffer // Buffer data that is not read by client
+	readMu sync.Mutex // Lock the read buffer
 
 	readTimeout time.Duration
 	error       error
@@ -31,6 +33,13 @@ func NewAsyncReader(r io.Reader) *AsyncReader {
 	return ar
 }
 
+// Reset clears the input buffer
+func (ar *AsyncReader) Reset() {
+	ar.readMu.Lock()
+	defer ar.readMu.Unlock()
+	ar.readBuffer.Reset()
+}
+
 func (ar *AsyncReader) SetReadErrorHandler(cb ReadErrorHandler) {
 	ar.readErrorHandler = cb
 }
@@ -44,6 +53,8 @@ func (ar *AsyncReader) ReadTimeout() time.Duration {
 }
 
 func (ar *AsyncReader) Read(b []byte) (n int, err error) {
+	ar.readMu.Lock()
+	defer ar.readMu.Unlock()
 	// Data available, return it
 	if ar.readBuffer.Len() > 0 {
 		return ar.readBuffer.Read(b)
