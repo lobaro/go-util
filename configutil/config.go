@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Setup(cmd *cobra.Command, requireFile bool) *viper.Viper {
+func Setup(cmd *cobra.Command) (*viper.Viper, error) {
 	cfg := viper.GetViper()
 	configParam := "config.yaml"
 	if cmd != nil {
@@ -61,12 +61,6 @@ func Setup(cmd *cobra.Command, requireFile bool) *viper.Viper {
 	}
 
 	err = cfg.ReadInConfig()
-	if err != nil {
-		if requireFile {
-			logrus.WithError(err).Fatal("Failed to read config file")
-		} else {
-			logrus.WithError(err).Info("Failed to read config file")
-		}
-	}
-	return cfg
+
+	return cfg, err
 }
