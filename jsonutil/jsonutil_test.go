@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 	"encoding/json"
+	"bytes"
 )
 
 type TestStruct struct {
@@ -67,7 +68,7 @@ type ByteString struct {
 	Str ByteJsonString
 }
 
-func TestByteString(t *testing.T) {
+func TestMarshalByteString(t *testing.T) {
 	o := ByteString{
 		Str: []byte("lobaro"),
 	}
@@ -84,11 +85,26 @@ func TestByteString(t *testing.T) {
 	}
 }
 
+func TestUnMarshalByteString(t *testing.T) {
+	j := `{"Str":"lobaro"}`
+	o := &ByteString{}
+
+	err := json.Unmarshal([]byte(j), o)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(o.Str, []byte("lobaro")) {
+		t.Error("Expected o.Str to be 'lobaro' but is: '" + string(o.Str)+"'")
+	}
+}
+
 type ByteArray struct {
 	Bytes ByteJsonArray
 }
 
-func TestByteArray(t *testing.T) {
+func TestMarshalByteArray(t *testing.T) {
 	o := ByteArray{
 		Bytes: []byte{1, 2, 3},
 	}
@@ -102,5 +118,20 @@ func TestByteArray(t *testing.T) {
 	expected := `{"Bytes":[1,2,3]}`
 	if string(data) != expected {
 		t.Error("Unexpected json result: " + string(data))
+	}
+}
+
+func TestUnMarshalByteArray(t *testing.T) {
+	j := `{"Bytes":[1, 2,3]}`
+	o := &ByteArray{}
+
+	err := json.Unmarshal([]byte(j), o)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(o.Bytes, []byte{1,2,3}) {
+		t.Errorf("Expected o.Bytes to be '[1,2,3]' but is: '%v' (%s)", o.Bytes, o.Bytes)
 	}
 }

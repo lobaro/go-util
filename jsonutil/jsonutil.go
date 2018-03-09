@@ -5,10 +5,12 @@ import (
 	"strings"
 	"fmt"
 	"github.com/Lobaro/go-util/reflectutil"
+	"strconv"
 )
 
 type ByteJsonArray []byte
 
+// Implement json.Marshaler
 func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
 	var result string
 	if u == nil {
@@ -17,6 +19,26 @@ func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
 		result = strings.Join(strings.Fields(fmt.Sprintf("%d", u)), ",")
 	}
 	return []byte(result), nil
+}
+
+// Implement json.Unmarshaler
+func (u *ByteJsonArray) UnmarshalJSON(b []byte) error {
+	str := strings.Trim(string(b), `[]`)
+	tok := strings.Split(str, ",")
+	bytes := make([]byte, 0)
+	for _, t := range tok {
+		i, err := strconv.ParseInt(strings.TrimSpace(t), 0, 10)
+		if err != nil {
+			return err
+		}
+		if i < 0 || i > 255 {
+			return fmt.Errorf("invalid byte value %d, must be between 0 and 255", i)
+		}
+		bytes = append(bytes, byte(i))
+	}
+
+	*u = ByteJsonArray(bytes)
+	return nil
 }
 
 type ByteJsonString []byte
@@ -29,6 +51,14 @@ func (u ByteJsonString) MarshalJSON() ([]byte, error) {
 		result = fmt.Sprintf(`"%s"`, u)
 	}
 	return []byte(result), nil
+}
+
+// Implement json.Unmarshaler
+func (u *ByteJsonString) UnmarshalJSON(b []byte) error {
+	str := string(b)
+	str = strings.Trim(str, `"`)
+	*u = ByteJsonString(str)
+	return nil
 }
 
 // Takes a unmarshaled json and converts it into another struct
