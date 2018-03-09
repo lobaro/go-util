@@ -7,16 +7,16 @@ import (
 )
 
 type TestStruct struct {
-	String    string `json:"string"`
+	String    string  `json:"string"`
 	Float     float64 `json:"float"`
-	Int       int `json:"int"`
-	BoolTrue  bool `json:"bool_true"`
-	BoolFalse bool `json:"bool_false"`
-	Nested    struct {
-			  Number float64 `json:"number"`
-			  String string `json:"string"`
-		  } `json:"nested"`
-	Time      time.Time `json:"time"`
+	Int       int     `json:"int"`
+	BoolTrue  bool    `json:"bool_true"`
+	BoolFalse bool    `json:"bool_false"`
+	Nested struct {
+		Number float64 `json:"number"`
+		String string  `json:"string"`
+	} `json:"nested"`
+	Time time.Time `json:"time"`
 }
 
 func TestConvert(t *testing.T) {
@@ -60,5 +60,47 @@ func TestConvert(t *testing.T) {
 	}
 	if parsed.BoolTrue != true {
 		t.Error("Wrong BoolTrue data", parsed.BoolTrue)
+	}
+}
+
+type ByteString struct {
+	Str ByteJsonString
+}
+
+func TestByteString(t *testing.T) {
+	o := ByteString{
+		Str: []byte("lobaro"),
+	}
+
+	data, err := json.Marshal(o)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	expected := `{"Str":"lobaro"}`
+	if string(data) != expected {
+		t.Error("Unexpected json result: " + string(data))
+	}
+}
+
+type ByteArray struct {
+	Bytes ByteJsonArray
+}
+
+func TestByteArray(t *testing.T) {
+	o := ByteArray{
+		Bytes: []byte{1, 2, 3},
+	}
+
+	data, err := json.Marshal(o)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	expected := `{"Bytes":[1,2,3]}`
+	if string(data) != expected {
+		t.Error("Unexpected json result: " + string(data))
 	}
 }

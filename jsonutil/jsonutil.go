@@ -19,6 +19,18 @@ func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
 	return []byte(result), nil
 }
 
+type ByteJsonString []byte
+
+func (u ByteJsonString) MarshalJSON() ([]byte, error) {
+	var result string
+	if u == nil {
+		result = "null"
+	} else {
+		result = fmt.Sprintf(`"%s"`, u)
+	}
+	return []byte(result), nil
+}
+
 // Takes a unmarshaled json and converts it into another struct
 func Convert(in interface{}, out interface{}) error {
 	reflectutil.MustBePointer(out)
