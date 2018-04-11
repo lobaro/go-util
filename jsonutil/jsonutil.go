@@ -43,6 +43,10 @@ func (u *ByteJsonArray) UnmarshalJSON(b []byte) error {
 
 type ByteJsonString []byte
 
+func (u ByteJsonString) String() string {
+	return string(u)
+}
+
 func (u ByteJsonString) MarshalJSON() ([]byte, error) {
 	var result string
 	if u == nil {
