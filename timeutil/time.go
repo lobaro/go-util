@@ -9,7 +9,7 @@ const (
 )
 
 func SetLocalTimezone(location string) error {
-	berlinLocation, err := time.LoadLocation("Europe/Berlin")
+	berlinLocation, err := time.LoadLocation(location)
 	if err != nil {
 		return err
 	}
