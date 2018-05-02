@@ -30,6 +30,14 @@ func ParseTime(s string) time.Time {
 	return ParseTimeWith(s, timeFormats...)
 }
 
+func MustParse(layout string, value string) time.Time {
+	if t, err := time.Parse(layout, value); err != nil {
+		panic(err)
+	} else {
+		return t
+	}
+}
+
 func ParseTimeWith(s string, formats... string) time.Time {
 	// First try to parse as int
 	i, err := strconv.ParseInt(s, 10, 64)
