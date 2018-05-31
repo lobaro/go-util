@@ -16,6 +16,18 @@ func Exists(path string) (bool, error) {
 	return true, err
 }
 
+// MustExists returns true only when file can be found
+func MustExists(path string) (bool) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
 func OpenCreateAppend(p string) (*os.File, error) {
 	dir := path.Dir(p)
 	err := os.MkdirAll(dir, os.ModePerm)
