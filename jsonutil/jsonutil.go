@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 	"fmt"
-	"github.com/Lobaro/go-util/reflectutil"
+	"github.com/lobaro/go-util/reflectutil"
 	"strconv"
 )
 
