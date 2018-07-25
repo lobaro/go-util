@@ -2,6 +2,7 @@ package fileutil
 
 import (
 	"io"
+	"os"
 )
 
 // A file writer that opens the file on demand
@@ -9,6 +10,7 @@ import (
 type Writer struct {
 	w    io.WriteCloser
 	path string
+	Mode os.FileMode // File mode for the file (set after open/create)
 }
 
 func (w *Writer) open() error {
@@ -22,6 +24,13 @@ func (w *Writer) open() error {
 		return err
 	}
 	w.w = logFile
+
+	if w.Mode != 0 {
+		err = os.Chmod(w.path, w.Mode)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
