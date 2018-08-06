@@ -12,7 +12,7 @@ import (
 
 func Setup(cmd *cobra.Command) (*viper.Viper, error) {
 	cfg := viper.GetViper()
-	configParam := "config.yaml"
+	configParam := "config.yml"
 	if cmd != nil {
 		configParam, _ = cmd.Flags().GetString("config")
 	}
@@ -27,7 +27,7 @@ func Setup(cmd *cobra.Command) (*viper.Viper, error) {
 	fileName = strings.TrimSuffix(fileName, filepath.Ext(fileName)) // Must be without extension
 
 	if configType == "" {
-		configType = "json"
+		configType = "yml"
 	}
 
 	cfg.SetConfigName(fileName)
