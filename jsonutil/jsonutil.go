@@ -1,6 +1,7 @@
 package jsonutil
 
 import (
+	"bytes"
 	"encoding/json"
 	"strings"
 	"fmt"
@@ -86,4 +87,18 @@ func MustMarshal(in interface{}) []byte {
 		panic(err)
 	}
 	return bytes
+}
+
+
+func MustMarshalIndent(in interface{}) []byte {
+	b := &bytes.Buffer{}
+	e := json.NewEncoder(b)
+	e.SetIndent("", "  ")
+
+
+	err := e.Encode(in)
+	if err != nil {
+		panic(err)
+	}
+	return b.Bytes()
 }
