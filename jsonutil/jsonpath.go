@@ -23,7 +23,7 @@ func ValueByPath(jsonMap JsonMap, path string) (interface{}, error) {
 			if err != nil {
 				return current, fmt.Errorf("token '%s' must be an array index", t)
 			}
-			if int64(len(asArray)) >= idx {
+			if idx >= int64(len(asArray)) {
 				return current, fmt.Errorf("index '%s' >= '%d' out of range", strings.Join(tokens[:i+1], "."), int64(len(asArray)))
 			}
 			current = asArray[idx]
