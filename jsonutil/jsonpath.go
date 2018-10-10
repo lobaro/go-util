@@ -10,6 +10,11 @@ type JsonMap = map[string]interface{}
 type JsonArray = []interface{}
 
 func ValueByPath(jsonMap JsonMap, path string) (interface{}, error) {
+	if path == "" {
+		// Empty path means root element
+		return jsonMap, nil
+	}
+
 	tokens := strings.Split(path, ".")
 	var current interface{}
 	current = jsonMap
