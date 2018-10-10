@@ -23,7 +23,7 @@ func (u ByteJsonArray) MarshalJSON() ([]byte, error) {
 func (u *ByteJsonArray) UnmarshalJSON(b []byte) error {
 	str := strings.Trim(string(b), `[]`)
 	tok := strings.Split(str, ",")
-	b := make([]byte, 0)
+	res := make([]byte, 0)
 	for _, t := range tok {
 		i, err := strconv.ParseInt(strings.TrimSpace(t), 0, 10)
 		if err != nil {
@@ -32,10 +32,10 @@ func (u *ByteJsonArray) UnmarshalJSON(b []byte) error {
 		if i < 0 || i > 255 {
 			return fmt.Errorf("invalid byte value %d, must be between 0 and 255", i)
 		}
-		b = append(b, byte(i))
+		res = append(res, byte(i))
 	}
 
-	*u = ByteJsonArray(b)
+	*u = ByteJsonArray(res)
 	return nil
 }
 
