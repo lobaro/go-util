@@ -5,6 +5,8 @@ import (
 )
 
 const (
+	UTC    = "UTC"
+	LOCAL  = "Local"
 	BERLIN = "Europe/Berlin"
 )
 
