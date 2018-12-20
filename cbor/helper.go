@@ -1,3 +1,4 @@
+// cbor handling parallel to the json package
 package cbor
 
 import (
@@ -8,9 +9,22 @@ import (
 
 type CborType byte
 
-const CborMap = CborType(0xA0)
-const CborArray = CborType(0x80)
+const (
+	CborMap   = CborType(0xA0)
+	CborArray = CborType(0x80)
+)
 
+func MajorType(data byte) CborType {
+	return CborType(data & 0xE0)
+}
+
+func IsMap(bytes []byte) bool {
+	return len(bytes) > 0 && MajorType(bytes[0]) == CborMap
+}
+
+func IsArray(bytes []byte) bool {
+	return len(bytes) > 0 && MajorType(bytes[0]) == CborArray
+}
 
 func NewDecoder(r io.Reader) *codec.Decoder {
 	return codec.NewDecoder(r, new(codec.CborHandle))

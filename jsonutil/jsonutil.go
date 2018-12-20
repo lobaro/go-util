@@ -9,6 +9,10 @@ func IsMap(bytes []byte) bool {
 	return len(bytes) > 1 && bytes[0] == '{' && bytes[len(bytes)-1] == '}'
 }
 
+func IsArray(bytes []byte) bool {
+	return len(bytes) > 1 && bytes[0] == '[' && bytes[len(bytes)-1] == ']'
+}
+
 // Takes a unmarshaled json and converts it into another struct
 func Convert(in interface{}, out interface{}) error {
 	reflectutil.MustBePointer(out)
