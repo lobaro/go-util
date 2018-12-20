@@ -6,6 +6,12 @@ import (
 	"github.com/ugorji/go/codec"
 )
 
+type CborType byte
+
+const CborMap = CborType(0xA0)
+const CborArray = CborType(0x80)
+
+
 func NewDecoder(r io.Reader) *codec.Decoder {
 	return codec.NewDecoder(r, new(codec.CborHandle))
 }
