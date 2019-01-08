@@ -3,6 +3,7 @@ package cbor
 
 import (
 	"io"
+	"reflect"
 
 	"github.com/ugorji/go/codec"
 )
@@ -35,7 +36,9 @@ func NewEncoder(w io.Writer) *codec.Encoder {
 }
 
 func NewDecoderBytes(data []byte) *codec.Decoder {
-	return codec.NewDecoderBytes(data, new(codec.CborHandle))
+	cbh := new(codec.CborHandle)
+	cbh.MapType = reflect.TypeOf(map[string]interface{}{})
+	return codec.NewDecoderBytes(data, cbh)
 }
 
 func NewEncoderBytes(out *[]byte) *codec.Encoder {
