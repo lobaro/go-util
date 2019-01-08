@@ -1,10 +1,31 @@
+// cbor handling parallel to the json package
 package cbor
 
 import (
 	"io"
+	"reflect"
 
 	"github.com/ugorji/go/codec"
 )
+
+type CborType byte
+
+const (
+	CborMap   = CborType(0xA0)
+	CborArray = CborType(0x80)
+)
+
+func MajorType(data byte) CborType {
+	return CborType(data & 0xE0)
+}
+
+func IsMap(bytes []byte) bool {
+	return len(bytes) > 0 && MajorType(bytes[0]) == CborMap
+}
+
+func IsArray(bytes []byte) bool {
+	return len(bytes) > 0 && MajorType(bytes[0]) == CborArray
+}
 
 func NewDecoder(r io.Reader) *codec.Decoder {
 	return codec.NewDecoder(r, new(codec.CborHandle))
@@ -15,7 +36,9 @@ func NewEncoder(w io.Writer) *codec.Encoder {
 }
 
 func NewDecoderBytes(data []byte) *codec.Decoder {
-	return codec.NewDecoderBytes(data, new(codec.CborHandle))
+	cbh := new(codec.CborHandle)
+	cbh.MapType = reflect.TypeOf(map[string]interface{}{})
+	return codec.NewDecoderBytes(data, cbh)
 }
 
 func NewEncoderBytes(out *[]byte) *codec.Encoder {
