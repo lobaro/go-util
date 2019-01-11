@@ -1,6 +1,8 @@
 package configutil
 
 import (
+	"fmt"
+	"github.com/lobaro/go-util/fileutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -62,6 +64,10 @@ func Setup(cmd *cobra.Command, configFile string) (*viper.Viper, error) {
 			panic(err)
 		}
 		cfg.AddConfigPath(dir)
+
+		if cfg.ConfigFileUsed() != "" &&  !fileutil.MustExists(cfg.ConfigFileUsed()) {
+			return cfg, fmt.Errorf("config file does not exist: %s", cfg.ConfigFileUsed())
+		}
 
 		err = cfg.ReadInConfig()
 		if err != nil {
