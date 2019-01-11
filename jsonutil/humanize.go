@@ -23,3 +23,18 @@ func (u HexString) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(result), nil
 }
+
+func (u HexString)String() string {
+	var result string
+	if u == nil {
+		result = "null"
+	} else {
+
+		h := hex.EncodeToString(u)
+		if len(h) == 0 {
+			return ""
+		}
+		result = strings.Join(strings.Fields(fmt.Sprintf(`0x%s`, h)), ",")
+	}
+	return result
+}

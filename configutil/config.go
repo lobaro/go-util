@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// configParam default is "config.yml", empty string will not load a file
-func Setup(cmd *cobra.Command, configParam string) (*viper.Viper, error) {
+// configFile default is "config.yml", empty string will try to get the configFile from "config" cmd flag
+func Setup(cmd *cobra.Command, configFile string) (*viper.Viper, error) {
 	cfg := viper.GetViper()
 
 	cfg.AutomaticEnv()
@@ -24,20 +24,20 @@ func Setup(cmd *cobra.Command, configParam string) (*viper.Viper, error) {
 		cfg.BindPFlags(cmd.Flags())
 	}
 
-	if cmd != nil && configParam == "" {
-		configParam, _ = cmd.Flags().GetString("config")
+	if cmd != nil && configFile == "" {
+		configFile, _ = cmd.Flags().GetString("config")
 	}
 
-	hasFileConfig := configParam != ""
+	hasFileConfig := configFile != ""
 
 	if hasFileConfig {
-		fileName := configParam
+		fileName := configFile
 		configType := ""
 
-		dir := filepath.Dir(configParam)
-		fileName = filepath.Base(configParam)
+		dir := filepath.Dir(configFile)
+		fileName = filepath.Base(configFile)
 
-		configType = filepath.Ext(configParam)
+		configType = filepath.Ext(configFile)
 		configType = strings.TrimLeft(configType, ".")
 		fileName = strings.TrimSuffix(fileName, filepath.Ext(fileName)) // Must be without extension
 
