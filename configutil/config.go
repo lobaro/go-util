@@ -1,7 +1,6 @@
 package configutil
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,12 +65,12 @@ func Setup(cmd *cobra.Command, configFile string) (*viper.Viper, error) {
 
 		err = cfg.ReadInConfig()
 		if err != nil {
-			return cfg, nil
+			return cfg, err
 		}
-
+/*
 		if configFile != "" &&  cfg.ConfigFileUsed() == "" {
 			return cfg, fmt.Errorf("config file does not exist: %s", configFile)
-		}
+		}*/
 	}
 
 	return cfg, nil
