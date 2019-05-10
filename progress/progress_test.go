@@ -3,7 +3,7 @@ package progress
 import "testing"
 
 func TestProgress_Advance(t *testing.T) {
-	p := NewProgress()
+	p := NewProgress("dummy")
 
 	p.Total = 100
 	p.Reset()
@@ -15,11 +15,11 @@ func TestProgress_Advance(t *testing.T) {
 }
 
 func TestProgress_Nested(t *testing.T) {
-	p := NewProgress()
+	p := NewProgress("parent")
 
-	n1 := p.CreateNested(20)
+	n1 := p.CreateNested("child1", 20)
 	n1.Total = 100
-	n2 := p.CreateNested(80)
+	n2 := p.CreateNested("child2", 80)
 	n2.Total = 100
 
 	n1.Advance(20)
