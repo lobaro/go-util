@@ -25,3 +25,13 @@ func TestFixMissingTimezone(t *testing.T) {
 	assert.Equal(t, 11* time.Hour, unzonedJan.Sub(sydneyJan))
 	assert.Equal(t, 10* time.Hour, unzonedJun.Sub(sydneyJun))
 }
+
+func TestFixMissingTimezoneWithoutFraction(t *testing.T) {
+	// timestamps with zero fractions of seconds are printed differently using time.Format
+	// since FixMissingTimezone uses that, verify that that case is handled correctly
+	unzonedJun, err := time.Parse(time.RFC3339Nano, "2019-06-10T00:00:00.000000000Z")
+	assert.NoError(t, err)
+	berlinJun := FixMissingTimezone(unzonedJun, berlin)
+	assert.Equal(t, 2 * time.Hour, unzonedJun.Sub(berlinJun))
+
+}

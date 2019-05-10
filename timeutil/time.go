@@ -35,6 +35,7 @@ func SetLocalTimezone(location string) error {
 // present.
 func FixMissingTimezone(unzoned time.Time, location *time.Location) time.Time {
 	printed := unzoned.Format("2006-01-02T15:04:05.999999999Z")
-	zoned, _ := time.ParseInLocation("2006-01-02T15:04:05.999999999", printed[:29], location)
+	whitoutZone := printed[:len(printed)-1]
+	zoned, _ := time.ParseInLocation("2006-01-02T15:04:05.999999999", whitoutZone, location)
 	return zoned
 }
