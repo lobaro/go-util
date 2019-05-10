@@ -27,3 +27,14 @@ func SetLocalTimezone(location string) error {
 	time.Local = berlinLocation
 	return nil
 }
+
+// Takes a time that has wrongly been interpreted as UTC but was actually a local time value, and the location for
+// that it should have been interpreted. Returns a timestamp with the error corrected. Considers the state of
+// daylight saving time at the given location at that given point in time.
+// This obviously must fail for one of the two duplicate hours during time adjustment, as that information is not
+// present.
+func FixMissingTimezone(unzoned time.Time, location *time.Location) time.Time {
+	printed := unzoned.Format("2006-01-02T15:04:05.999999999Z")
+	zoned, _ := time.ParseInLocation("2006-01-02T15:04:05.999999999", printed[:29], location)
+	return zoned
+}
