@@ -42,7 +42,7 @@ func MustMarshalIndent(in interface{}) []byte {
 func MustToMap(in string) map[string]interface{} {
 	m := make(map[string]interface{})
 
-	err := json.Unmarshal([]byte(in), m)
+	err := json.Unmarshal([]byte(in), &m)
 	if err != nil {
 		panic(err)
 	}
