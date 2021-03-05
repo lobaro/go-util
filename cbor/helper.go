@@ -2,6 +2,7 @@
 package cbor
 
 import (
+	"encoding/hex"
 	"io"
 	"reflect"
 
@@ -38,6 +39,7 @@ func NewEncoder(w io.Writer) *codec.Encoder {
 func NewDecoderBytes(data []byte) *codec.Decoder {
 	cbh := new(codec.CborHandle)
 	cbh.MapType = reflect.TypeOf(map[string]interface{}{})
+	cbh.SetInterfaceExt(reflect.TypeOf([]byte{}), 1, ByteAryToHexStrExt{})
 	return codec.NewDecoderBytes(data, cbh)
 }
 
@@ -57,4 +59,15 @@ func Unmarshal(data []byte, v interface{}) error {
 	err := dec.Decode(v)
 
 	return err
+}
+
+type ByteAryToHexStrExt struct{}
+
+func (b ByteAryToHexStrExt) ConvertExt(v interface{}) interface{} {
+	return v
+}
+
+func (x ByteAryToHexStrExt) UpdateExt(dest interface{}, v interface{}) {
+	b := v.([]byte)
+	dest = hex.EncodeToString(b)
 }
