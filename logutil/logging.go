@@ -4,8 +4,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/sirupsen/logrus"
 	"github.com/fatih/color"
+	"github.com/sirupsen/logrus"
 )
 
 var Output = &ThreadsafeWriter{
@@ -34,7 +34,13 @@ func SetupLogging() {
 		FullTimestamp: false,
 	})
 
-	logrus.Info("Setup default logging")
+	logrus.Debug("Setup default logging")
+}
+
+func SetupJsonLogging() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	logrus.Debug("Setup json logging")
 }
 
 func NewDefaultLogger() *logrus.Logger {
