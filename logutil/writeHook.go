@@ -20,6 +20,7 @@ var defaultFormatter = &logrus.TextFormatter{
 	DisableColors: true,
 }
 
+// NewWriterHook creates a new LogWriteHook to the selected io.Writer. format and levels can be nil if the default TextFormatter with no colours and all log levels should be used
 func NewWriterHook(target io.Writer, format logrus.Formatter, levels []logrus.Level) LogWriteHook {
 	tWriter := ThreadsafeWriter{
 		Writer: target,
