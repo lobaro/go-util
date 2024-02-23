@@ -12,8 +12,7 @@ import (
 type LogWriteHook struct {
 	target    ThreadsafeWriter
 	formatter logrus.Formatter
-
-	levels []logrus.Level
+	levels    []logrus.Level
 }
 
 var defaultFormatter = &logrus.TextFormatter{
