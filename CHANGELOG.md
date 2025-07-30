@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## v0.3.1 - 2025-07-30
 ### Changed
 - Upgrade dependencies, go to v1.23.6
 
